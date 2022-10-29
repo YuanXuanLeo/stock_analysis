@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <title>美股大盤預測</title>
+  <!-- Favicon-->
+  <link rel="icon" type="image/x-icon" href="../static/assets/img/trend.png" />
+  <!-- Font Awesome icons (free version)-->
+  <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
+  <!-- Google fonts-->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
+  <!-- Core theme CSS (includes Bootstrap)-->
+  <link href="../static/css/stocknow_styles.css" rel="stylesheet" />
+  <!-- <link href="../static/css/S&P500_customize.css" rel="stylesheet" /> -->
+</head>
+
+<body id="page-top">
+  <!-- Navigation-->
+  <div class="container">
+    <div>
+      <button class="btn btn-warning btn-xl text-uppercase" href="index_sp500.html" id="S&P500">
+        標普500指數
+      </button>
+      <button class="btn btn-warning btn-xl text-uppercase" href="index_dow.html" id="dowjones30">
+        道瓊工業指數
+      </button>
+      <button class="btn btn-warning btn-xl text-uppercase" href="index_nasdaq100.html" id="nasdaq100">
+        那斯達克指數
+      </button>
+    </div>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <ul class="navbar-nav text-uppercase ms-auto py-4 py-lg-0">
+        <li class="nav-item">
+          <!-- <a class="nav-link" href="./treemap.html" href="./demo.html">標普500板塊圖</a> -->
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!-- Masthead-->
+  <header class="masthead">
+    <div class="container">
+      <div class="row align-items-start">
+        <div class="col">標普500指數大盤走勢</div>
+      </div>
+      <div class="row align-items-start">
+        <div class="col">
+          <div id="SPindicesContainer" class="chart"></div>
+        </div>
+      </div>
+      <div class="row mt-2 mb-2">
+        <select class="form-select" id="selectCompany">
+          <option value="">請選擇公司</option>
+        </select>
+      </div>
+      <div class="row mt-2 mb-2">
+        <div class="col">
+          <div id="SPchartContainer" class="chart"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Bootstrap core JS-->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Core theme JS-->
+  <script src="../static/js/stocknow_scripts.js"></script>
+  <script></script>
+  <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+  <!-- * *                               SB Forms JS                               * *-->
+  <!-- * * Activate your form at https://startbootstrap.com/solution/contact-forms * *-->
+  <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+  <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
+  <script src="https://code.highcharts.com/stock/highstock.js"></script>
+  <script src="https://code.highcharts.com/stock/modules/data.js"></script>
+
+  <script src="https://code.highcharts.com/stock/indicators/indicators-all.js"></script>
+
+  <script src="https://code.highcharts.com/stock/modules/drag-panes.js"></script>
+  <script src="https://code.highcharts.com/stock/modules/annotations-advanced.js"></script>
+  <script src="https://code.highcharts.com/stock/modules/price-indicator.js"></script>
+  <script src="https://code.highcharts.com/stock/modules/full-screen.js"></script>
+
+  <script src="https://code.highcharts.com/stock/modules/stock-tools.js"></script>
+  <!-- JQuery links  -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+  <!-- Bootstrap core JS-->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Core theme JS-->
+  <script src="../static/js/stocknow_scripts.js"></script>
+  <script></script>
+  <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+  <!-- * *                               SB Forms JS                               * *-->
+  <!-- * * Activate your form at https://startbootstrap.com/solution/contact-forms * *-->
+  <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+  <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
+  <script>
+    const SP500 = document.getElementById("S&P500");
+    SP500.addEventListener("click", function () {
+      window.location.assign("./index_sp500.html");
+    });
+    const DJ30 = document.getElementById("dowjones30");
+    DJ30.addEventListener("click", function () {
+      window.location.assign("./index_dow.html");
+    });
+    const NQ100 = document.getElementById("nasdaq100");
+    NQ100.addEventListener("click", function () {
+      window.location.assign("./index_nasdaq100.html");
+    });
+
+    let SPchart = []; //標普個股圖表
+    let SPvalume = []; //標普個股成交量
+    let SPindicesChart = []; //標普大盤指數圖表
+    let SPindicesVolume = []; //標普大盤指數成交量
+    const selection = document.getElementById("selectCompany");
+    let SPData = []; //標普個股
+    let SPindices = []; //標普大盤指數
+
+    $(document).ready(function () {
+      $.getJSON("/sp500", function (data) {
+        SPData = data.res;
+        // console.log(SPData);
+        makeCompaniesOptions();
+      });
+      $.getJSON("/usa_indices", function (data) {
+        SPindices = data.res;
+        makeChart(SPindices, SPindicesChart, SPindicesVolume, "^GSPC");
+        plotChart(
+          SPindicesChart,
+          SPindicesVolume,
+          "^GSPC",
+          "SPindicesContainer"
+        );
+      });
+    });
+
+    /* 製做公司下拉選單 */
+    function makeCompaniesOptions() {
+      const companies = Array.from(
+        new Set(SPData.map((x) => x.Symbol))
+      ).sort();
+
+      for (let i = 0; i < companies.length; i++) {
+        const text = document.createTextNode(companies[i]);
+        const option = document.createElement("option");
+        option.appendChild(text);
+        option.value = companies[i];
+        selection.appendChild(option);
+      }
+      document.addEventListener("change", onChangeOption);
+    }
+    /* 下拉選單選項改變 */
+    function onChangeOption() {
+      const index = selection.selectedIndex;
+      const option = selection.options[index].value;
+      SPchart = [];
+      SPvalume = [];
+      makeChart(SPData, SPchart, SPvalume, option);
+      plotChart(SPchart, SPvalume, option, "SPchartContainer");
+    }
+
+    /* 製作圖表 */
+    function makeChart(data, chart, volume, option) {
+      //去找哪些資料的symbol符合目前選項
+      const list = data.filter((x) => x.Symbol == option);
+      //跑上述資料迴圈，做圖表
+      for (let i = 0; i < list.length; i++) {
+        const item = list[i];
+        chart.push([
+          parseFloat(new Date(item["Date"]).valueOf()), // date
+          parseFloat(item["Open"]), // open
+          parseFloat(item["High"]), // high
+          parseFloat(item["Low"]), // low
+          parseFloat(item["Close"]), // close
+        ]);
+        volume.push([
+          parseFloat(new Date(item["Date"]).valueOf()), // date
+          parseFloat(item["Volume"]), // the volume
+        ]);
+      }
+    }
+
+    /* 設定圖表 */
+    function plotChart(chart, volume, option, container) {
+      Highcharts.stockChart(container, {
+        navigation: {
+          bindings: {
+            rect: {
+              annotationsOptions: {
+                shapeOptions: {
+                  fill: "rgba(255, 0, 0, 0.8)",
+                },
+              },
+            },
+          },
+          annotationsOptions: {
+            typeOptions: {
+              line: {
+                stroke: "rgba(255, 0, 0, 1)",
+                strokeWidth: 10,
+              },
+            },
+          },
+        },
+        yAxis: [
+          {
+            labels: {
+              align: "left",
+            },
+            height: "80%",
+          },
+          {
+            labels: {
+              align: "left",
+            },
+            top: "80%",
+            height: "20%",
+            offset: 0,
+          },
+        ],
+        series: [
+          {
+            type: "ohlc",
+            id: `${option}-ohlc`,
+            name: `${option} Stock Price`,
+            data: chart,
+            tooltip: {
+              valueDecimals: 2,
+            },
+          },
+          {
+            type: "column",
+            id: `${option}-volume`,
+            name: `${option} Volume`,
+            data: volume,
+            yAxis: 1,
+          },
+        ],
+      });
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,15 @@
+{% extends "parts/base.html" %}
+
+{% block title %} 即時股價 {% endblock title %}
+
+{% block navbar_list %}
+{% include "parts/_navbar_tab1.html" %}
+{% endblock navbar_list %}
+
+
+
+{% block page_content %}
+{{ super() }}
+<!-- <h3>東西放page_content裡</h3> -->
+{% include "nasdaq100.html" %}
+{% endblock page_content %}

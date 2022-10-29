@@ -1,0 +1,22 @@
+{% extends "parts/base.html" %}
+
+{% block title %} 國際新聞 {% endblock title %}
+
+{% block navbar_list %}
+{% include "parts/_navbar_tab5.html" %}
+{% endblock navbar_list %}
+
+
+{% block page_content %}
+{{ super() }}
+<div class="table">
+    <table id="dataTable" width="100%"></table>
+</div>
+<div>
+    <button type="button" class="btn btn-outline-info">看更多</button>
+</div>
+<br>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="../static/js/UStock_news.js"></script>
+
+{% endblock page_content %}
