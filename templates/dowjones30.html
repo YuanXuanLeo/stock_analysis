@@ -16,15 +16,16 @@
   <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
   <!-- Core theme CSS (includes Bootstrap)-->
   <link href="../static/css/stocknow_styles.css" rel="stylesheet" />
-  <link href="../static/css/S&P500_customize.css" rel="stylesheet" />
+  <!-- <link href="../static/css/S&P500_customize.css" rel="stylesheet" /> -->
 
   <!--Added -->
-  <link rel="stylesheet" type="text/css" href="https://code.highcharts.com/css/stocktools/gui.css" />
-  <link rel="stylesheet" type="text/css" href="https://code.highcharts.com/css/annotations/popup.css" />
+  <!-- <link rel="stylesheet" type="text/css" href="https://code.highcharts.com/css/stocktools/gui.css" /> -->
+  <!-- <link rel="stylesheet" type="text/css" href="https://code.highcharts.com/css/annotations/popup.css" /> -->
 </head>
 
 <body id="page-top">
   <!-- Navigation-->
+  <br>
   <div class="container">
     <div>
       <button class="btn btn-warning btn-xl text-uppercase" href="index_sp500.html" id="S&P500">
@@ -40,7 +41,7 @@
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav text-uppercase ms-auto py-4 py-lg-0">
         <li class="nav-item">
-          <a class="nav-link" href="./treemap.html" href="./demo.html">道瓊工業板塊圖</a>
+          <!-- <a class="nav-link" href="./treemap.html" href="./demo.html">道瓊工業板塊圖</a> -->
         </li>
       </ul>
     </div>
@@ -48,20 +49,16 @@
   <!-- Masthead-->
   <header class="masthead">
     <div class="container">
-      <div class="row align-items-start">
         <div class="col">道瓊指數大盤走勢</div>
-      </div>
-      <div class="row align-items-start">
-        <div class="col">
-          <div id="DJindicesContainer" class="chart"></div>
-        </div>
-      </div>
-      <div class="row mt-2 mb-2">
+        <div id="DJindicesContainer" class="chart"></div>
+      <br>
+      <div class="col">
         <select class="form-select" id="selectCompany">
           <option value="">請選擇公司</option>
         </select>
       </div>
-      <div class="row mt-2 mb-2">
+      <br>
+      <div class="col">
         <div class="col">
           <div id="DJchartContainer" class="chart"></div>
         </div>

@@ -1,8 +1,12 @@
 from turtle import title
 from predict.model import perform_training
 from flask import Flask,render_template,request
+from model_vr1 import random_forests
+from model_vr1 import KNN
 import app.run as run
 import app.app as app
+import pandas as pd
+import numpy as np
 import utils
 import json
 import os
@@ -51,7 +55,7 @@ def nasdaq():
 
 @app.route('/sp500')
 def sp500():
-    f=open('./static/new_historical_sp500.json')
+    f=open('./static/historical_sp500.json')
     data=json.load(f)
     f.close()
     return {"res":data}
@@ -66,114 +70,123 @@ def usaIndices():
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///stock_list.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+
+
 with app.app_context():
 
     class all_stock(db.Model):
         marketindexes = db.Column(db.String(30))
         symbol = db.Column(db.String(30), primary_key=True,unique = False)
-        previousclose = db.Column(db.Integer, index=True,nullable=True)
+        close = db.Column(db.Integer, index=True,nullable=True)
         cheapprice = db.Column(db.Integer, index=True,nullable=True)
         fairprice = db.Column(db.Integer, index=True,nullable=True)
         expensiveprice = db.Column(db.Integer, index=True,nullable=True)
         volume = db.Column(db.Integer, index=True,nullable=True)
         dividendyield = db.Column(db.Integer, index=True,nullable=True)
         fiveyearavgdividendyield = db.Column(db.Integer, index=True,nullable=True)
-        lastdividendvalue = db.Column(db.Integer, index=True,nullable=True)
+        fiveyeardividend = db.Column(db.Integer, index=True,nullable=True)
+        update = db.Column(db.Date, index=True,nullable=True)
 
         def to_dict1(self):
             return {
                 'marketindexes': self.marketindexes,
                 'symbol': self.symbol,
-                'previousclose': self.previousclose,
+                'close': self.close,
                 'cheapprice': self.cheapprice,
                 'fairprice': self.fairprice,
                 'expensiveprice': self.expensiveprice,
                 'volume': self.volume,
                 'dividendyield': self.dividendyield,
                 'fiveyearavgdividendyield': self.fiveyearavgdividendyield,
-                'lastdividendvalue': self.lastdividendvalue
+                'fiveyeardividend': self.fiveyeardividend,
+                'update': self.update
             }
 
     class dji(db.Model):
         marketindexes = db.Column(db.String(30))
         symbol = db.Column(db.String(30), primary_key=True,unique = False)
-        previousclose = db.Column(db.Integer, index=True,nullable=True)
+        close = db.Column(db.Integer, index=True,nullable=True)
         cheapprice = db.Column(db.Integer, index=True,nullable=True)
         fairprice = db.Column(db.Integer, index=True,nullable=True)
         expensiveprice = db.Column(db.Integer, index=True,nullable=True)
         volume = db.Column(db.Integer, index=True,nullable=True)
         dividendyield = db.Column(db.Integer, index=True,nullable=True)
         fiveyearavgdividendyield = db.Column(db.Integer, index=True,nullable=True)
-        lastdividendvalue = db.Column(db.Integer, index=True,nullable=True)
+        fiveyeardividend = db.Column(db.Integer, index=True,nullable=True)
+        update = db.Column(db.Date, index=True,nullable=True)
 
         def to_dict2(self):
             return {
                 'marketindexes': self.marketindexes,
                 'symbol': self.symbol,
-                'previousclose': self.previousclose,
+                'close': self.close,
                 'cheapprice': self.cheapprice,
                 'fairprice': self.fairprice,
                 'expensiveprice': self.expensiveprice,
                 'volume': self.volume,
                 'dividendyield': self.dividendyield,
                 'fiveyearavgdividendyield': self.fiveyearavgdividendyield,
-                'lastdividendvalue': self.lastdividendvalue
+                'fiveyeardividend': self.fiveyeardividend,
+                'update': self.update
             }
 
     class sp500(db.Model):
         marketindexes = db.Column(db.String(30))
         symbol = db.Column(db.String(30), primary_key=True,unique = False)
-        previousclose = db.Column(db.Integer, index=True,nullable=True)
+        close = db.Column(db.Integer, index=True,nullable=True)
         cheapprice = db.Column(db.Integer, index=True,nullable=True)
         fairprice = db.Column(db.Integer, index=True,nullable=True)
         expensiveprice = db.Column(db.Integer, index=True,nullable=True)
         volume = db.Column(db.Integer, index=True,nullable=True)
         dividendyield = db.Column(db.Integer, index=True,nullable=True)
         fiveyearavgdividendyield = db.Column(db.Integer, index=True,nullable=True)
-        lastdividendvalue = db.Column(db.Integer, index=True,nullable=True)
+        fiveyeardividend = db.Column(db.Integer, index=True,nullable=True)
+        update = db.Column(db.Date, index=True,nullable=True)
 
         def to_dict3(self):
             return {
                 'marketindexes': self.marketindexes,
                 'symbol': self.symbol,
-                'previousclose': self.previousclose,
+                'close': self.close,
                 'cheapprice': self.cheapprice,
                 'fairprice': self.fairprice,
                 'expensiveprice': self.expensiveprice,
                 'volume': self.volume,
                 'dividendyield': self.dividendyield,
                 'fiveyearavgdividendyield': self.fiveyearavgdividendyield,
-                'lastdividendvalue': self.lastdividendvalue
+                'fiveyeardividend': self.fiveyeardividend,
+                'update': self.update
             }
 
     class nasdaq(db.Model):
         marketindexes = db.Column(db.String(30))
         symbol = db.Column(db.String(30), primary_key=True,unique = False)
-        previousclose = db.Column(db.Integer, index=True,nullable=True)
+        close = db.Column(db.Integer, index=True,nullable=True)
         cheapprice = db.Column(db.Integer, index=True,nullable=True)
         fairprice = db.Column(db.Integer, index=True,nullable=True)
         expensiveprice = db.Column(db.Integer, index=True,nullable=True)
         volume = db.Column(db.Integer, index=True,nullable=True)
         dividendyield = db.Column(db.Integer, index=True,nullable=True)
         fiveyearavgdividendyield = db.Column(db.Integer, index=True,nullable=True)
-        lastdividendvalue = db.Column(db.Integer, index=True,nullable=True)
+        fiveyeardividend = db.Column(db.Integer, index=True,nullable=True)
+        update = db.Column(db.Date, index=True,nullable=True)
 
         def to_dict4(self):
             return {
                 'marketindexes': self.marketindexes,
                 'symbol': self.symbol,
-                'previousclose': self.previousclose,
+                'close': self.close,
                 'cheapprice': self.cheapprice,
                 'fairprice': self.fairprice,
                 'expensiveprice': self.expensiveprice,
                 'volume': self.volume,
                 'dividendyield': self.dividendyield,
                 'fiveyearavgdividendyield': self.fiveyearavgdividendyield,
-                'lastdividendvalue': self.lastdividendvalue
+                'fiveyeardividend': self.fiveyeardividend,
+                'update': self.update
             }
 
     db.create_all()
-    
 
 						   
 @app.route('/risk.html')
@@ -194,13 +207,6 @@ def sp500s():
 def nasdaqs():
     return {'data': [user.to_dict4() for user in nasdaq.query]}    
 
-
-
-# @app.route('/predict.html')
-# def charts():
-# 	title = "預測模型"
-# 	return render_template('predict.html', title=title)
-
 all_files = utils.read_all_stock_files('predict/individual_stocks_5yr')
 @app.route('/predict.html')
 def landing_function():
@@ -208,28 +214,90 @@ def landing_function():
     # df = all_files['A']
     # df = pd.read_csv('GOOG_30_days.csv')
     # all_prediction_data, all_prediction_data, prediction_date, dates, all_data, all_data = perform_training('A', df, ['SVR_linear'])
-    stock_files = list(all_files.keys())
-    return render_template('predict.html',show_results="false", stocklen=len(stock_files), stock_files=stock_files, len2=len([]),
-                           all_prediction_data=[], title=title,
-                           prediction_date="", dates=[], all_data=[], len=len([]))
+    stock_files = ['AAPL', 'ADI', 'AMAT', 'AMZN', 'CVX', 'HD', 'JPM', 'MAR', 'TSLA', 'WMT']
+    #stock_files = list(all_files.keys())
+    return render_template('predict.html',show_results="false", title=title,
+                           accuracy=[], test_score=float, prob_tomorrow=np.array([]),tommor=pd.DataFrame(),stock_files=stock_files, predict_data=pd.DataFrame(),pred_date_set=str, y_pred1=pd.DataFrame())
 
 @app.route('/process', methods=['POST'])
 def process():
     title = "股價預測"
     stock_file_name = request.form['stockfile']
     ml_algoritms = request.form.getlist('mlalgos')
-    df = all_files[str(stock_file_name)]
+    ml_algoritms = ml_algoritms[0]
     stockname = str(stock_file_name)
-    all_prediction_data, all_prediction_data, prediction_date, dates, all_data, all_data, all_test_evaluations = \
-        perform_training(str(stock_file_name), df, ml_algoritms)
-    stock_files = list(all_files.keys())
-
-    return render_template('predict.html', all_test_evaluations=all_test_evaluations, show_results="true",
-                           stocklen=len(stock_files), stock_files=stock_files,
-                           len2=len(all_prediction_data),
-                           all_prediction_data=all_prediction_data,
-                           prediction_date=prediction_date, dates=dates, all_data=all_data, len=len(all_data),
-                           stockname=stockname)
+    df =pd.read_csv("traindata/"+stock_file_name+"_data_train.csv")
+    df=df.drop(['symbol'],axis=1)
+    if ml_algoritms=='KNN':
+        accuracy, test_score, prob_tomorrow,tommor, predict_data, pred_date_set, original_pred_data,y_pred1=KNN(df,day_pred=60)
+    elif ml_algoritms=='random_forests':
+        accuracy, test_score, prob_tomorrow,tommor, predict_data, pred_date_set, original_pred_data,y_pred1=random_forests(df,day_pred=60) 
+    stock_files = ['AAPL', 'ADI', 'AMAT', 'AMZN', 'CVX', 'HD', 'JPM', 'MAR', 'TSLA', 'WMT']
+    #stock_files = list(all_files.keys())
+    html_name = "/modelhtml/"+stock_file_name+"_"+str(ml_algoritms)+".html"
+    return render_template('predict.html', all_test_evaluations=str(ml_algoritms), show_results="true",stock_files=stock_files,stock_file_name=stock_file_name,html_name=html_name,
+                           accuracy=accuracy, test_score=test_score, prob_tomorrow=prob_tomorrow,tommor=tommor.updown, pred_date_set=str(pred_date_set.loc[60]), predict_data=predict_data, y_pred1=y_pred1)
+#####模型視覺化區塊________
+@app.route('/modelhtml/AAPL_KNN.html')
+def html1():
+	return render_template('/modelhtml/AAPL_KNN.html', title=title)
+@app.route('/modelhtml/AAPL_random_forests.html')
+def html2():
+	return render_template('/modelhtml/AAPL_random_forests.html', title=title)
+@app.route('/modelhtml/ADI_KNN.html')
+def html3():
+	return render_template('/modelhtml/ADI_KNN.html', title=title)
+@app.route('/modelhtml/ADI_random_forests.html')
+def html4():
+	return render_template('/modelhtml/ADI_random_forests.html', title=title)
+@app.route('/modelhtml/AMAT_KNN.html')
+def html5():
+	return render_template('/modelhtml/AMAT_KNN.html', title=title)
+@app.route('/modelhtml/AMAT_random_forests.html')
+def html6():
+	return render_template('/modelhtml/AMAT_random_forests.html', title=title)
+@app.route('/modelhtml/AMZN_KNN.html.html')
+def html7():
+	return render_template('/modelhtml/AMZN_KNN.html', title=title)
+@app.route('/modelhtml/AMZN_random_forests.html')
+def html8():
+	return render_template('/modelhtml/AMZN_random_forests.html', title=title)
+@app.route('/modelhtml/CVX_KNN.html')
+def html9():
+	return render_template('/modelhtml/CVX_KNN.html', title=title)
+@app.route('/modelhtml/CVX_random_forests.html')
+def html10():
+	return render_template('/modelhtml/CVX_random_forests.html', title=title)
+@app.route('/modelhtml/HD_KNN.html')
+def html11():
+	return render_template('/modelhtml/HD_KNN.html', title=title)
+@app.route('/modelhtml/HD_random_forests.html')
+def html12():
+	return render_template('/modelhtml/HD_random_forests.html', title=title)
+@app.route('/modelhtml/JPM_KNN.html')
+def html13():
+	return render_template('/modelhtml/JPM_KNN.html', title=title)
+@app.route('/modelhtml/JPM_random_forests.html')
+def html14():
+	return render_template('/modelhtml/JPM_random_forests.html', title=title)
+@app.route('/modelhtml/MAR_KNN.html')
+def html15():
+	return render_template('/modelhtml/MAR_KNN.html', title=title)
+@app.route('/modelhtml/MAR_random_forests.html')
+def html16():
+	return render_template('/modelhtml/MAR_random_forests.html', title=title)
+@app.route('/modelhtml/TSLA_KNN.html')
+def html17():
+	return render_template('/modelhtml/TSLA_KNN.html', title=title)
+@app.route('/modelhtml/TSLA_random_forests.html')
+def html18():
+	return render_template('/modelhtml/TSLA_random_forests.html', title=title)
+@app.route('/modelhtml/WMT_KNN.html')
+def html19():
+	return render_template('/modelhtml/WMT_KNN.html', title=title)
+@app.route('/modelhtml/WMT_random_forests.html')
+def html20():
+	return render_template('/modelhtml/WMT_random_forests.html', title=title)
 
 @app.route('/index_treemap.html')
 def treemap():

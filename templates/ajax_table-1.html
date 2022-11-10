@@ -1,0 +1,190 @@
+{% extends "ajax_table_base.html" %}
+
+{% block content %}
+  <table id="data" class="ui celled table nowrap" style="width:100%">
+    <div style="text-align:center;">
+      <input class="custom-btn stockbutton btn btn-outline-info" data-value="/stocktable/all" type="button" value="三大指標綜合">
+      <input class="custom-btn stockbutton btn btn-outline-info" data-value="/stocktable/dji"  type="button" value="道瓊工業">
+      <input class="custom-btn stockbutton btn btn-outline-info" data-value="/stocktable/sp500"  type="button" value="標普500">
+      <input class="custom-btn stockbutton btn btn-outline-info" data-value="/stocktable/nasdaq"  type="button" value="那斯達克">
+    </div>
+    <thead>
+      <tr>
+        <th>marketindexes</th>
+        <th>symbol</th>
+        <th>previousclose</th>
+        <th>cheapprice</th>
+        <th>fairprice</th>
+        <th>expensiveprice</th>
+        <th>volume</th>
+        <th>dividendyield</th>
+        <th>fiveyearavgdividendyield</th>
+        <th>lastdividendvalue</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+     
+    $(document).ready(function () { 
+      var tablePath = "/stocktable/all"
+      // var tablePath = "/stocktable/sp500"
+
+
+      var table = $('#myTable').DataTable();
+ 
+      $('.stockbutton').click(function () { 
+        // console.log($(this).val());
+        tablePath = $(this).data('value');
+        // console.log(stockTable);
+        // stockTable.clear();
+        // stockTable.reset();
+        stockTable.destroy();
+        $("#data").empty();
+        stockTable = $("#data").DataTable({
+        scrollY: 500,
+        "scrollCollapse": true,
+        "scrollX": true,
+        language: {
+        "lengthMenu": "顯示 _MENU_ 筆資料",
+        "sProcessing": "處理中...",
+        "sZeroRecords": "没有匹配结果",
+        "sInfo": "目前有 _MAX_ 筆資料",
+        "sInfoEmpty": "目前共有 0 筆紀錄",
+        "sInfoFiltered": " ",
+        "sInfoPostFix": "",
+        "sSearch": "搜尋:",
+        "sUrl": "",
+        "sEmptyTable": "尚未有資料紀錄存在",
+        "sLoadingRecords": "載入資料中...",
+        "sInfoThousands": ",",
+        "oPaginate": {
+            "sFirst": "首頁",
+            "sPrevious": "上一頁",
+            "sNext": "下一頁",
+            "sLast": "末頁"
+        },
+        "order": [[0, "desc"]],
+        "oAria": {
+            "sSortAscending": ": 以升序排列此列",
+            "sSortDescending": ": 以降序排列此列"
+        }
+      },
+      
+      ajax:tablePath,
+      columns: [
+          {data: 'marketindexes',title:'美股指數'},
+          {data: 'symbol',title:'股票名稱'},                    
+          {data: 'previousclose',title:'目前股價',"render": function (data, type, row) {
+                                                            row.out_qty_x = Number(data).toFixed(2);
+                                                            return row.out_qty_x;}},
+          {data: 'cheapprice',title:'便宜價',"render": function (data, type, row) {
+                                                            row.out_qty_x = Number(data).toFixed(2);
+                                                            return row.out_qty_x;}},
+          {data: 'fairprice',title:'合理價',"render": function (data, type, row) {
+                                                            row.out_qty_x = Number(data).toFixed(2);
+                                                            return row.out_qty_x;}},
+          {data: 'expensiveprice',title:'昂貴價',"render": function (data, type, row) {
+                                                            row.out_qty_x = Number(data).toFixed(2);
+                                                            return row.out_qty_x;}},
+          {data: 'volume',title:'成交量',"render": function (data, type, row) {
+                                                            row.out_qty_x = Number(data).toFixed(2);
+                                                            return row.out_qty_x;}},                                                            
+          {data: 'dividendyield',title:'殖利率',"render": function (data, type, row) {
+                                                            row.out_qty_x = Number(data).toFixed(2);
+                                                            return row.out_qty_x;}},
+          {data: 'fiveyearavgdividendyield',title:'五年平均值利率',"render": function (data, type, row) {
+                                                            row.out_qty_x = Number(data).toFixed(2);
+                                                            return row.out_qty_x;}},
+          {data: 'lastdividendvalue',title:'股利',"render": function (data, type, row) {
+                                                            row.out_qty_x = Number(data).toFixed(2);
+                                                            return row.out_qty_x;},
+                                                  "mRender": function (data, type, full) {
+                                                    if (full[7] !== null) {
+                                                                return full[7]; 
+                                                            }else{
+                                                                return '無';
+                                                            }}}                                                            
+                                                          ],
+      });
+    });
+
+
+
+    
+      var stockTable = $("#data").DataTable({
+        scrollY: 500,
+        "scrollCollapse": true,
+        "scrollX": true,
+        language: {
+        "lengthMenu": "顯示 _MENU_ 筆資料",
+        "sProcessing": "處理中...",
+        "sZeroRecords": "没有匹配结果",
+        "sInfo": "目前有 _MAX_ 筆資料",
+        "sInfoEmpty": "目前共有 0 筆紀錄",
+        "sInfoFiltered": " ",
+        "sInfoPostFix": "",
+        "sSearch": "搜尋:",
+        "sUrl": "",
+        "sEmptyTable": "尚未有資料紀錄存在",
+        "sLoadingRecords": "載入資料中...",
+        "sInfoThousands": ",",
+        "oPaginate": {
+            "sFirst": "首頁",
+            "sPrevious": "上一頁",
+            "sNext": "下一頁",
+            "sLast": "末頁"
+        },
+        "order": [[0, "desc"]],
+        "oAria": {
+            "sSortAscending": ": 以升序排列此列",
+            "sSortDescending": ": 以降序排列此列"
+        }
+      },
+      
+      ajax:tablePath,
+      columns: [
+          {data: 'marketindexes',title:'美股指數'},
+          {data: 'symbol',title:'股票名稱'},                    
+          {data: 'previousclose',title:'目前股價',"render": function (data, type, row) {
+                                                            row.out_qty_x = Number(data).toFixed(2);
+                                                            return row.out_qty_x;}},
+          {data: 'cheapprice',title:'便宜價',"render": function (data, type, row) {
+                                                            row.out_qty_x = Number(data).toFixed(2);
+                                                            return row.out_qty_x;}},
+          {data: 'fairprice',title:'合理價',"render": function (data, type, row) {
+                                                            row.out_qty_x = Number(data).toFixed(2);
+                                                            return row.out_qty_x;}},
+          {data: 'expensiveprice',title:'昂貴價',"render": function (data, type, row) {
+                                                            row.out_qty_x = Number(data).toFixed(2);
+                                                            return row.out_qty_x;}},
+          {data: 'volume',title:'成交量',"render": function (data, type, row) {
+                                                            row.out_qty_x = Number(data).toFixed(2);
+                                                            return row.out_qty_x;}},                                                            
+          {data: 'dividendyield',title:'殖利率',"render": function (data, type, row) {
+                                                            row.out_qty_x = Number(data).toFixed(2);
+                                                            return row.out_qty_x;}},
+          {data: 'fiveyearavgdividendyield',title:'五年平均值利率',"render": function (data, type, row) {
+                                                            row.out_qty_x = Number(data).toFixed(2);
+                                                            return row.out_qty_x;}},
+          {data: 'lastdividendvalue',title:'股利',"render": function (data, type, row) {
+                                                            row.out_qty_x = Number(data).toFixed(2);
+                                                            return row.out_qty_x;},
+                                                  "mRender": function (data, type, full) {
+                                                    if (full[7] !== null) {
+                                                                return full[7]; 
+                                                            }else{
+                                                                return '無';
+                                                            }}}                                                            
+                                                          ],
+      });    
+    });
+
+    
+  </script>
+{% endblock %}
